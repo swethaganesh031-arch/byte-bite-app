@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { LogOut } from "lucide-react";
 import heroFood from "@/assets/hero-food.jpg";
+import { getImageForItem } from "@/utils/foodImages";
 
 const menuItems = {
   // Breakfast
@@ -263,6 +264,7 @@ const Menu = () => {
                       cost={item.cost}
                       category="veg"
                       special={item.special}
+                      image={getImageForItem(item.id)}
                       onAddToCart={() => handleAddToCart(item, "veg")}
                     />
                   ))}
@@ -278,6 +280,7 @@ const Menu = () => {
                       cost={item.cost}
                       category="nonveg"
                       special={item.special}
+                      image={getImageForItem(item.id)}
                       onAddToCart={() => handleAddToCart(item, "nonveg")}
                     />
                   ))}
@@ -309,6 +312,7 @@ const Menu = () => {
                             cost={item.cost}
                             category="veg"
                             special={item.special}
+                            image={getImageForItem(item.id)}
                             onAddToCart={() => handleAddToCart(item, "veg")}
                           />
                         ))}
@@ -333,6 +337,7 @@ const Menu = () => {
                             cost={item.cost}
                             category="nonveg"
                             special={item.special}
+                            image={getImageForItem(item.id)}
                             onAddToCart={() => handleAddToCart(item, "nonveg")}
                           />
                         ))}
@@ -361,6 +366,7 @@ const Menu = () => {
                       cost={item.cost}
                       category="veg"
                       special={item.special}
+                      image={getImageForItem(item.id)}
                       onAddToCart={() => handleAddToCart(item, "veg")}
                     />
                   ))}
@@ -376,6 +382,7 @@ const Menu = () => {
                       cost={item.cost}
                       category="nonveg"
                       special={item.special}
+                      image={getImageForItem(item.id)}
                       onAddToCart={() => handleAddToCart(item, "nonveg")}
                     />
                   ))}
@@ -394,6 +401,7 @@ const Menu = () => {
                   cost={item.cost}
                   category="veg"
                   special={item.special}
+                  image={getImageForItem(item.id)}
                   onAddToCart={() => handleAddToCart(item, "veg")}
                 />
               ))}
@@ -410,6 +418,7 @@ const Menu = () => {
                   cost={item.cost}
                   category="veg"
                   special={item.special}
+                  image={getImageForItem(item.id)}
                   onAddToCart={() => handleAddToCart(item, "veg")}
                 />
               ))}
@@ -426,6 +435,7 @@ const Menu = () => {
                   cost={item.cost}
                   category="veg"
                   special={item.special}
+                  image={getImageForItem(item.id)}
                   onAddToCart={() => handleAddToCart(item, "veg")}
                 />
               ))}

@@ -8,12 +8,23 @@ interface FoodCardProps {
   cost: number;
   category: "veg" | "nonveg";
   special: boolean;
+  image?: string;
   onAddToCart: () => void;
 }
 
-export const FoodCard = ({ name, cost, category, special, onAddToCart }: FoodCardProps) => {
+export const FoodCard = ({ name, cost, category, special, image, onAddToCart }: FoodCardProps) => {
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg">
+      {image && (
+        <div className="relative h-48 w-full overflow-hidden">
+          <img 
+            src={image} 
+            alt={name} 
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+        </div>
+      )}
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
