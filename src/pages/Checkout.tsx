@@ -100,10 +100,14 @@ const Checkout = () => {
                   <span className="text-secondary">-₹{discount}</span>
                 </div>
               )}
+              <div className="flex justify-between text-muted-foreground">
+                <span>GST (5%)</span>
+                <span>₹{(subtotal * 0.05).toFixed(2)}</span>
+              </div>
               <Separator />
               <div className="flex justify-between text-xl font-bold">
-                <span>Total</span>
-                <span className="text-primary">₹{total}</span>
+                <span>Total Payment</span>
+                <span className="text-primary">₹{(subtotal * 1.05).toFixed(2)}</span>
               </div>
             </div>
           </CardContent>
