@@ -7,40 +7,104 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { UtensilsCrossed } from "lucide-react";
+// Firebase imports
+import { auth } from "@/lib/firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    loginId: "",
+    loginPassword: "",
+    signupName: "",
+    signupEmail: "",
+    signupPhone: "",
+    signupPassword: "",
+    signupConfirmPassword: ""
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate login
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Using email as login ID for Firebase authentication
+      await signInWithEmailAndPassword(auth, formData.loginId, formData.loginPassword);
+      
       toast({
         title: "Welcome back!",
         description: "You've successfully logged in",
       });
+      
       navigate("/menu");
-    }, 1000);
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast({
+        title: "Login failed",
+        description: error.message || "Invalid credentials. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate signup
-    setTimeout(() => {
+    // Check if passwords match
+    if (formData.signupPassword !== formData.signupConfirmPassword) {
+      toast({
+        title: "Signup failed",
+        description: "Passwords do not match",
+        variant: "destructive"
+      });
       setIsLoading(false);
+      return;
+    }
+    
+    try {
+      // Create user with email and password
+      const userCredential = await createUserWithEmailAndPassword(
+        auth, 
+        formData.signupEmail, 
+        formData.signupPassword
+      );
+      
+      // Update user profile with display name
+      await updateProfile(userCredential.user, {
+        displayName: formData.signupName
+      });
+      
+      // Save additional user data (phone) to Firestore could be added here
+      
       toast({
         title: "Account created!",
         description: "Welcome to Campus Canteen",
       });
+      
       navigate("/menu");
-    }, 1000);
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      toast({
+        title: "Signup failed",
+        description: error.message || "Failed to create account. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -63,12 +127,26 @@ const Auth = () => {
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-id">User ID</Label>
-                  <Input id="login-id" type="text" placeholder="Enter your user ID" required />
+                  <Label htmlFor="loginId">Email</Label>
+                  <Input 
+                    id="loginId" 
+                    type="email" 
+                    placeholder="Enter your email" 
+                    required 
+                    value={formData.loginId}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="login-password">Password</Label>
-                  <Input id="login-password" type="password" placeholder="Enter your password" required />
+                  <Label htmlFor="loginPassword">Password</Label>
+                  <Input 
+                    id="loginPassword" 
+                    type="password" 
+                    placeholder="Enter your password" 
+                    required 
+                    value={formData.loginPassword}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Logging in..." : "Login"}
@@ -79,24 +157,59 @@ const Auth = () => {
             <TabsContent value="signup">
               <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-name">Name</Label>
-                  <Input id="signup-name" type="text" placeholder="Enter your name" required />
+                  <Label htmlFor="signupName">Name</Label>
+                  <Input 
+                    id="signupName" 
+                    type="text" 
+                    placeholder="Enter your name" 
+                    required 
+                    value={formData.signupName}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input id="signup-email" type="email" placeholder="Enter your email" required />
+                  <Label htmlFor="signupEmail">Email</Label>
+                  <Input 
+                    id="signupEmail" 
+                    type="email" 
+                    placeholder="Enter your email" 
+                    required 
+                    value={formData.signupEmail}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-phone">Phone</Label>
-                  <Input id="signup-phone" type="tel" placeholder="Enter your phone number" required />
+                  <Label htmlFor="signupPhone">Phone</Label>
+                  <Input 
+                    id="signupPhone" 
+                    type="tel" 
+                    placeholder="Enter your phone number" 
+                    required 
+                    value={formData.signupPhone}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input id="signup-password" type="password" placeholder="Create a password" required />
+                  <Label htmlFor="signupPassword">Password</Label>
+                  <Input 
+                    id="signupPassword" 
+                    type="password" 
+                    placeholder="Create a password" 
+                    required 
+                    value={formData.signupPassword}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-confirm">Confirm Password</Label>
-                  <Input id="signup-confirm" type="password" placeholder="Confirm your password" required />
+                  <Label htmlFor="signupConfirmPassword">Confirm Password</Label>
+                  <Input 
+                    id="signupConfirmPassword" 
+                    type="password" 
+                    placeholder="Confirm your password" 
+                    required 
+                    value={formData.signupConfirmPassword}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Creating account..." : "Sign Up"}
