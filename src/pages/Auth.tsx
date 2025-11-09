@@ -39,7 +39,7 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
-      // Check if trying to access admin panel
+      // Check if trying to access admin panel with special credentials
       if (formData.loginId === "admin" && formData.loginPassword === "admin123") {
         // For demo purposes, we'll create a temporary admin user
         // In a real app, you would have a proper admin user in Firebase
@@ -73,7 +73,7 @@ const Auth = () => {
       logEvent(analytics, 'login_error', { error: error.message });
       toast({
         title: "Login failed",
-        description: error.message || "Invalid credentials. Please try again.",
+        description: "Invalid credentials. Please try again or sign up for a new account.",
         variant: "destructive"
       });
     } finally {
@@ -178,8 +178,22 @@ const Auth = () => {
                   {isLoading ? "Logging in..." : "Login"}
                 </Button>
                 
-                {/* Admin login hint */}
+                {/* Login instructions */}
                 <div className="text-center text-sm text-muted-foreground mt-4">
+                  <p className="mb-2">First time? <button 
+                    type="button" 
+                    className="text-primary underline"
+                    onClick={() => {
+                      // Switch to signup tab
+                      const tabsList = document.querySelector('[role="tablist"]');
+                      if (tabsList) {
+                        const signupTab = tabsList.querySelector('[value="signup"]') as HTMLButtonElement;
+                        if (signupTab) signupTab.click();
+                      }
+                    }}
+                  >
+                    Create an account
+                  </button></p>
                   <p>Admin login: admin@bytebite.com / admin123</p>
                 </div>
               </form>
@@ -245,6 +259,24 @@ const Auth = () => {
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Creating account..." : "Sign Up"}
                 </Button>
+                
+                {/* Signup instructions */}
+                <div className="text-center text-sm text-muted-foreground mt-4">
+                  <p>Already have an account? <button 
+                    type="button" 
+                    className="text-primary underline"
+                    onClick={() => {
+                      // Switch to login tab
+                      const tabsList = document.querySelector('[role="tablist"]');
+                      if (tabsList) {
+                        const loginTab = tabsList.querySelector('[value="login"]') as HTMLButtonElement;
+                        if (loginTab) loginTab.click();
+                      }
+                    }}
+                  >
+                    Log in
+                  </button></p>
+                </div>
               </form>
             </TabsContent>
           </Tabs>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Test User</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <h1>Create Test User</h1>
+    <button onclick="createUser()">Create Test User</button>
+    <div id="result"></div>
+
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQNNEp5VYrhNJTemI0IjA_hsG4EvJRrlg",
+            authDomain: "coffee-spark-ai-barista-b82da.firebaseapp.com",
+            projectId: "coffee-spark-ai-barista-b82da",
+            storageBucket: "coffee-spark-ai-barista-b82da.firebasestorage.app",
+            messagingSenderId: "664423992167",
+            appId: "1:664423992167:web:cb924b9aced07030813dc2"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        async function createUser() {
+            try {
+                // Create user with email and password
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(
+                    "test@example.com",
+                    "password123"
+                );
+                
+                // Update user profile with display name
+                await userCredential.user.updateProfile({
+                    displayName: "Test User"
+                });
+                
+                document.getElementById('result').innerHTML = `
+                    <p>Test user created successfully!</p>
+                    <p>Email: test@example.com</p>
+                    <p>Password: password123</p>
+                    <p>You can now use these credentials to log in to the application.</p>
+                `;
+            } catch (error) {
+                console.error("Error creating test user:", error);
+                document.getElementById('result').innerHTML = `
+                    <p>Error creating test user:</p>
+                    <p>Error code: ${error.code}</p>
+                    <p>Error message: ${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

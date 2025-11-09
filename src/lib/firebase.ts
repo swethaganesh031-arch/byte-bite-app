@@ -6,13 +6,12 @@ import { getAnalytics } from "firebase/analytics";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAXmHsdDqvYWGBkP4VPfX8hdvEFZ_sxB8w",
-  authDomain: "swetha-g.firebaseapp.com",
-  projectId: "swetha-g",
-  storageBucket: "swetha-g.firebasestorage.app",
-  messagingSenderId: "866194672349",
-  appId: "1:866194672349:web:302da2fa773ca6ef7de934",
-  measurementId: "G-EZTFWBPTL4"
+  apiKey: "AIzaSyDQNNEp5VYrhNJTemI0IjA_hsG4EvJRrlg",
+  authDomain: "coffee-spark-ai-barista-b82da.firebaseapp.com",
+  projectId: "coffee-spark-ai-barista-b82da",
+  storageBucket: "coffee-spark-ai-barista-b82da.firebasestorage.app",
+  messagingSenderId: "664423992167",
+  appId: "1:664423992167:web:cb924b9aced07030813dc2"
 };
 
 // Initialize Firebase
