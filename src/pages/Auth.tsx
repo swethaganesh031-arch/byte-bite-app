@@ -38,15 +38,31 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
+      // Check if trying to access admin panel
+      if (formData.loginId === "admin" && formData.loginPassword === "admin123") {
+        // For demo purposes, we'll create a temporary admin user
+        // In a real app, you would have a proper admin user in Firebase
+        toast({
+          title: "Admin Access",
+          description: "Redirecting to admin panel",
+        });
+        navigate("/admin");
+        return;
+      }
+      
       // Using email as login ID for Firebase authentication
       await signInWithEmailAndPassword(auth, formData.loginId, formData.loginPassword);
       
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully logged in",
-      });
-      
-      navigate("/menu");
+      // Check if user is admin
+      if (formData.loginId === "admin@bytebite.com") {
+        navigate("/admin");
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully logged in",
+        });
+        navigate("/menu");
+      }
     } catch (error: any) {
       console.error("Login error:", error);
       toast({
@@ -151,6 +167,11 @@ const Auth = () => {
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Logging in..." : "Login"}
                 </Button>
+                
+                {/* Admin login hint */}
+                <div className="text-center text-sm text-muted-foreground mt-4">
+                  <p>Admin login: admin@bytebite.com / admin123</p>
+                </div>
               </form>
             </TabsContent>
             

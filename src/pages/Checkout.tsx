@@ -8,6 +8,10 @@ import { Separator } from "@/components/ui/separator";
 import { CartItem } from "@/components/CartSheet";
 import { CreditCard, Banknote, Smartphone, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+// Firebase imports
+import { auth, db } from "@/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
 const Checkout = () => {
   const location = useLocation();
@@ -16,28 +20,69 @@ const Checkout = () => {
   const cartItems = (location.state?.cartItems || []) as CartItem[];
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  // Get current user info
+  useState(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+        setUserName(user.displayName);
+        setUserEmail(user.email);
+      }
+    });
+    
+    return () => unsubscribe();
+  });
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.cost * item.quantity, 0);
   const discount = 0;
   const total = subtotal - discount;
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     setIsProcessing(true);
     
-    setTimeout(() => {
-      setIsProcessing(false);
+    try {
+      // Save order to Firestore
+      const orderData = {
+        userId: userId || "guest",
+        userName: userName || "Guest User",
+        userEmail: userEmail || "guest@example.com",
+        items: cartItems,
+        subtotal,
+        discount,
+        total: subtotal * 1.05, // Including 5% GST
+        status: "pending",
+        timestamp: new Date(),
+        paymentMethod
+      };
+      
+      const docRef = await addDoc(collection(db, "orders"), orderData);
+      
       toast({
         title: "Order placed successfully!",
         description: "Your food is being prepared",
       });
+      
       navigate("/order-status", { 
         state: { 
-          orderId: `ORD${Date.now()}`,
-          total,
+          orderId: docRef.id,
+          total: orderData.total,
           items: cartItems 
         } 
       });
-    }, 1500);
+    } catch (error) {
+      console.error("Error placing order:", error);
+      toast({
+        title: "Order failed",
+        description: "Failed to place order. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (cartItems.length === 0) {
@@ -151,7 +196,7 @@ const Checkout = () => {
               size="lg"
               disabled={isProcessing}
             >
-              {isProcessing ? "Processing..." : `Place Order • ₹${total}`}
+              {isProcessing ? "Processing..." : `Place Order • ₹${(subtotal * 1.05).toFixed(2)}`}
             </Button>
           </CardContent>
         </Card>

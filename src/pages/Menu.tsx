@@ -8,6 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { LogOut } from "lucide-react";
 import heroFood from "@/assets/hero-food.jpg";
 import { getImageForItem } from "@/utils/foodImages";
+// Firebase imports
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 const menuItems = {
   // Breakfast
@@ -197,8 +200,18 @@ const Menu = () => {
     }
   };
 
-  const handleLogout = () => {
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate("/auth");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
