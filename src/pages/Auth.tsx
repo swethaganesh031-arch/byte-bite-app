@@ -8,8 +8,9 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { UtensilsCrossed } from "lucide-react";
 // Firebase imports
-import { auth } from "@/lib/firebase";
+import { auth, analytics } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { logEvent } from "firebase/analytics";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ const Auth = () => {
       if (formData.loginId === "admin" && formData.loginPassword === "admin123") {
         // For demo purposes, we'll create a temporary admin user
         // In a real app, you would have a proper admin user in Firebase
+        logEvent(analytics, 'admin_login', { method: 'admin_panel' });
         toast({
           title: "Admin Access",
           description: "Redirecting to admin panel",
@@ -52,6 +54,9 @@ const Auth = () => {
       
       // Using email as login ID for Firebase authentication
       await signInWithEmailAndPassword(auth, formData.loginId, formData.loginPassword);
+      
+      // Log login event
+      logEvent(analytics, 'login', { method: 'email' });
       
       // Check if user is admin
       if (formData.loginId === "admin@bytebite.com") {
@@ -65,6 +70,7 @@ const Auth = () => {
       }
     } catch (error: any) {
       console.error("Login error:", error);
+      logEvent(analytics, 'login_error', { error: error.message });
       toast({
         title: "Login failed",
         description: error.message || "Invalid credentials. Please try again.",
@@ -103,6 +109,9 @@ const Auth = () => {
         displayName: formData.signupName
       });
       
+      // Log signup event
+      logEvent(analytics, 'sign_up', { method: 'email' });
+      
       // Save additional user data (phone) to Firestore could be added here
       
       toast({
@@ -113,6 +122,7 @@ const Auth = () => {
       navigate("/menu");
     } catch (error: any) {
       console.error("Signup error:", error);
+      logEvent(analytics, 'signup_error', { error: error.message });
       toast({
         title: "Signup failed",
         description: error.message || "Failed to create account. Please try again.",

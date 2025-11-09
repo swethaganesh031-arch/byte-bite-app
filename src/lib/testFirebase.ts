@@ -1,5 +1,6 @@
-import { auth, db } from "./firebase";
+import { auth, db, analytics } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { logEvent } from "firebase/analytics";
 
 // Test Firebase configuration
 console.log("Firebase config test:");
@@ -28,4 +29,22 @@ if (db) {
   console.log("❌ Firestore is not initialized");
 }
 
-export { auth, db };
+// Check if Analytics is properly initialized
+if (analytics) {
+  console.log("✅ Firebase Analytics is initialized");
+  
+  // Log a test event
+  try {
+    logEvent(analytics, 'page_view', {
+      page_title: 'Firebase Test',
+      page_location: window.location.href
+    });
+    console.log("✅ Analytics event logged successfully");
+  } catch (error) {
+    console.log("ℹ️ Analytics event logging failed:", error);
+  }
+} else {
+  console.log("❌ Firebase Analytics is not initialized");
+}
+
+export { auth, db, analytics };

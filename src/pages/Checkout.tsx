@@ -9,9 +9,10 @@ import { CartItem } from "@/components/CartSheet";
 import { CreditCard, Banknote, Smartphone, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 // Firebase imports
-import { auth, db } from "@/lib/firebase";
+import { auth, db, analytics } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { logEvent } from "firebase/analytics";
 
 const Checkout = () => {
   const location = useLocation();
@@ -61,6 +62,21 @@ const Checkout = () => {
       
       const docRef = await addDoc(collection(db, "orders"), orderData);
       
+      // Log purchase event
+      if (analytics) {
+        logEvent(analytics, 'purchase', {
+          transaction_id: docRef.id,
+          value: orderData.total,
+          currency: 'INR',
+          items: cartItems.map(item => ({
+            item_id: item.id,
+            item_name: item.name,
+            quantity: item.quantity,
+            price: item.cost
+          }))
+        });
+      }
+      
       toast({
         title: "Order placed successfully!",
         description: "Your food is being prepared",
@@ -75,6 +91,9 @@ const Checkout = () => {
       });
     } catch (error) {
       console.error("Error placing order:", error);
+      if (analytics) {
+        logEvent(analytics, 'purchase_error', { error: (error as Error).message });
+      }
       toast({
         title: "Order failed",
         description: "Failed to place order. Please try again.",

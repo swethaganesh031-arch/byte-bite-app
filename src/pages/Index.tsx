@@ -2,9 +2,26 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { UtensilsCrossed, ShoppingBag, Clock, Star } from "lucide-react";
 import heroFood from "@/assets/hero-food.jpg";
+// Firebase imports
+import { analytics } from "@/lib/firebase";
+import { logEvent } from "firebase/analytics";
 
 const Index = () => {
   const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (analytics) {
+      logEvent(analytics, 'get_started_click');
+    }
+    navigate("/auth");
+  };
+
+  const handleViewMenu = () => {
+    if (analytics) {
+      logEvent(analytics, 'view_menu_click');
+    }
+    navigate("/menu");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,10 +47,10 @@ const Index = () => {
             Order delicious meals from your campus canteen with just a few taps
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button onClick={() => navigate("/auth")} size="lg" className="text-lg px-8">
+            <Button onClick={handleGetStarted} size="lg" className="text-lg px-8">
               Get Started
             </Button>
-            <Button onClick={() => navigate("/menu")} variant="outline" size="lg" className="text-lg px-8">
+            <Button onClick={handleViewMenu} variant="outline" size="lg" className="text-lg px-8">
               View Menu
             </Button>
           </div>

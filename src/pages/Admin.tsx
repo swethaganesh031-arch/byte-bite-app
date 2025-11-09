@@ -12,7 +12,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, analytics } from "@/lib/firebase";
 import { 
   collection, 
   query, 
@@ -24,6 +24,7 @@ import {
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CheckCircle, Clock, UtensilsCrossed, XCircle } from "lucide-react";
+import { logEvent } from "firebase/analytics";
 
 interface OrderItem {
   id: string;
@@ -58,6 +59,10 @@ const Admin = () => {
         // For now, we'll check if the email matches the admin email
         if (user.email === "admin@bytebite.com") {
           setIsAdmin(true);
+          // Log admin panel access
+          if (analytics) {
+            logEvent(analytics, 'admin_panel_access');
+          }
         } else {
           toast({
             title: "Access Denied",
@@ -102,6 +107,9 @@ const Admin = () => {
       setLoading(false);
     }, (error) => {
       console.error("Error fetching orders:", error);
+      if (analytics) {
+        logEvent(analytics, 'admin_orders_fetch_error', { error: error.message });
+      }
       toast({
         title: "Error",
         description: "Failed to fetch orders",
@@ -118,12 +126,23 @@ const Admin = () => {
       const orderRef = doc(db, "orders", orderId);
       await updateDoc(orderRef, { status });
       
+      // Log order status update
+      if (analytics) {
+        logEvent(analytics, 'admin_order_status_update', {
+          order_id: orderId,
+          status: status
+        });
+      }
+      
       toast({
         title: "Order Updated",
         description: `Order status updated to ${status}`
       });
     } catch (error) {
       console.error("Error updating order:", error);
+      if (analytics) {
+        logEvent(analytics, 'admin_order_update_error', { error: (error as Error).message });
+      }
       toast({
         title: "Error",
         description: "Failed to update order status",
@@ -135,6 +154,10 @@ const Admin = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      // Log admin logout
+      if (analytics) {
+        logEvent(analytics, 'admin_logout');
+      }
       navigate("/auth");
     } catch (error) {
       console.error("Error signing out:", error);

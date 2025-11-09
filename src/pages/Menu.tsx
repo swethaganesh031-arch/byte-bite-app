@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FoodCard } from "@/components/FoodCard";
 import { CartSheet, CartItem } from "@/components/CartSheet";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,9 @@ import { LogOut } from "lucide-react";
 import heroFood from "@/assets/hero-food.jpg";
 import { getImageForItem } from "@/utils/foodImages";
 // Firebase imports
-import { auth } from "@/lib/firebase";
+import { auth, analytics } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { logEvent } from "firebase/analytics";
 
 const menuItems = {
   // Breakfast
@@ -145,6 +146,15 @@ const Menu = () => {
       return [...prev, { ...item, category, quantity: 1 }];
     });
     
+    // Log add to cart event
+    if (analytics) {
+      logEvent(analytics, 'add_to_cart', {
+        item_id: item.id,
+        item_name: item.name,
+        value: item.cost
+      });
+    }
+    
     toast({
       title: "Added to cart",
       description: `${item.name} added to your cart`,
@@ -190,6 +200,15 @@ const Menu = () => {
 
   const handleCheckout = () => {
     if (cartItems.length > 0) {
+      // Log checkout event
+      const totalValue = cartItems.reduce((sum, item) => sum + (item.cost * item.quantity), 0);
+      if (analytics) {
+        logEvent(analytics, 'begin_checkout', {
+          value: totalValue,
+          currency: 'INR'
+        });
+      }
+      
       simulateOrderNotifications();
       navigate("/checkout", { state: { cartItems } });
     } else {
@@ -203,6 +222,10 @@ const Menu = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      // Log logout event
+      if (analytics) {
+        logEvent(analytics, 'logout');
+      }
       navigate("/auth");
     } catch (error) {
       console.error("Error signing out:", error);

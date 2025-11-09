@@ -8,8 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 // Firebase imports
-import { db } from "@/lib/firebase";
+import { db, analytics } from "@/lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
+import { logEvent } from "firebase/analytics";
 
 interface OrderItem {
   id: string;
@@ -64,6 +65,9 @@ const OrderStatus = () => {
       }
     }, (error) => {
       console.error("Error fetching order:", error);
+      if (analytics) {
+        logEvent(analytics, 'order_status_fetch_error', { error: error.message });
+      }
       navigate("/menu");
     });
 
@@ -71,6 +75,15 @@ const OrderStatus = () => {
   }, [orderId, navigate]);
 
   const handleSubmitFeedback = () => {
+    // Log feedback submission
+    if (analytics) {
+      logEvent(analytics, 'submit_feedback', {
+        order_id: orderId,
+        rating: rating,
+        has_feedback: !!feedback
+      });
+    }
+    
     toast({
       title: "Thank you for your feedback!",
       description: "We appreciate your input",
